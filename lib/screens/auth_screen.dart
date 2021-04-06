@@ -1,6 +1,8 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import '../widgets/auth_form.dart';
 
@@ -10,6 +12,7 @@ class AuthScreen extends StatefulWidget {
 }
 
 class _AuthScreenState extends State<AuthScreen> {
+  final _auth = FirebaseAuth.instance;
   var _isLoading = false;
 
   Future<void> _submitAuthForm(
@@ -18,7 +21,46 @@ class _AuthScreenState extends State<AuthScreen> {
     String password,
     bool isLogin,
     BuildContext ctx,
-  ) async {}
+  ) async {
+    try {
+      setState(() {
+        _isLoading = true;
+      });
+      if (isLogin) {
+        await _auth.signInWithEmailAndPassword(
+          email: email,
+          password: password,
+        );
+      } else {
+        await _auth.createUserWithEmailAndPassword(
+          email: email,
+          password: password,
+        );
+        // Your Firestore datas
+      }
+    } on PlatformException catch (err) {
+      var message = 'An error occurred, please check your credentials!';
+
+      if (err.message != null) {
+        message = err.message;
+      }
+
+      ScaffoldMessenger.of(ctx).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: Theme.of(ctx).errorColor,
+        ),
+      );
+      setState(() {
+        _isLoading = false;
+      });
+    } catch (err) {
+      print(err);
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -67,10 +109,9 @@ class _AuthScreenState extends State<AuthScreen> {
                         ],
                       ),
                       child: const Text(
-                        'Auth',
+                        'App',
                         style: TextStyle(
                           color: Colors.white,
-                          // color: Theme.of(context).accentTextTheme.headline6.color,
                           fontSize: 50,
                           fontFamily: 'Anton',
                           fontWeight: FontWeight.normal,

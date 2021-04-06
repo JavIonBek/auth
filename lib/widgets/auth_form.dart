@@ -82,9 +82,9 @@ class _AuthFromState extends State<AuthFrom>
         _isLogin,
         context,
       );
-      print(_userEmail);
-      print(_userName);
-      print(_userPassword);
+      // print(_userEmail);
+      // print(_userName);
+      // print(_userPassword);
       // Use those values to send our auth request ...
     }
   }
@@ -110,56 +110,58 @@ class _AuthFromState extends State<AuthFrom>
           child: SingleChildScrollView(
             child: Column(
               children: [
-                AnimatedContainer(
-                  constraints: BoxConstraints(
-                    minHeight: !_isLogin ? 60 : 0,
-                    maxHeight: !_isLogin ? 120 : 0,
-                  ),
-                  duration: Duration(milliseconds: 300),
-                  curve: Curves.easeIn,
-                  child: SlideTransition(
-                    position: _slideAnimation,
-                    child: FadeTransition(
-                      opacity: _opacityAnimation,
-                      child: TextFormField(
-                        enabled: !_isLogin,
-                        key: const ValueKey('email'),
-                        autocorrect: false,
-                        textCapitalization: TextCapitalization.none,
-                        enableSuggestions: false,
-                        decoration: const InputDecoration(labelText: 'E-Mail'),
-                        keyboardType: TextInputType.emailAddress,
-                        validator: (value) {
-                          if (value.isEmpty || !value.contains('@')) {
-                            return 'Please enter a valid email address.';
-                          }
-                          return null;
-                        },
-                        onSaved: (value) {
-                          _userEmail = value;
-                        },
-                      ),
-                    ),
-                  ),
-                ),
                 TextFormField(
-                  key: ValueKey('username'),
-                  autocorrect: true,
-                  textCapitalization: TextCapitalization.words,
+                  key: const ValueKey('email'),
+                  autocorrect: false,
+                  textCapitalization: TextCapitalization.none,
                   enableSuggestions: false,
-                  decoration: InputDecoration(labelText: 'User name'),
+                  decoration: const InputDecoration(labelText: 'Email address'),
+                  keyboardType: TextInputType.emailAddress,
                   validator: (value) {
-                    if (value.isEmpty || value.length < 4) {
-                      return 'Please enter at least 4 characters.';
+                    if (value.isEmpty || !value.contains('@')) {
+                      return 'Please enter a valid email address.';
                     }
                     return null;
                   },
                   onSaved: (value) {
-                    _userName = value;
+                    _userEmail = value;
                   },
                 ),
+                if (!_isLogin)
+                  AnimatedContainer(
+                    constraints: BoxConstraints(
+                      minHeight: !_isLogin ? 60 : 0,
+                      maxHeight: !_isLogin ? 120 : 0,
+                    ),
+                    duration: Duration(milliseconds: 300),
+                    curve: Curves.easeIn,
+                    child: SlideTransition(
+                      position: _slideAnimation,
+                      child: FadeTransition(
+                        opacity: _opacityAnimation,
+                        child: TextFormField(
+                          enabled: !_isLogin,
+                          key: const ValueKey('username'),
+                          autocorrect: true,
+                          textCapitalization: TextCapitalization.words,
+                          enableSuggestions: false,
+                          decoration:
+                              const InputDecoration(labelText: 'User name'),
+                          validator: (value) {
+                            if (value.isEmpty || value.length < 4) {
+                              return 'Please enter at least 4 characters.';
+                            }
+                            return null;
+                          },
+                          onSaved: (value) {
+                            _userName = value;
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
                 TextFormField(
-                  key: ValueKey('password'),
+                  key: const ValueKey('password'),
                   obscureText: true,
                   decoration: const InputDecoration(labelText: 'Password'),
                   validator: (value) {
