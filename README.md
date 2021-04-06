@@ -13,7 +13,9 @@
 ![App Screen](/assets/images/4.png)
 ![App Screen](/assets/images/5.png)
 ![App Screen](/assets/images/6.png)
+
 `Download google-services.json and put in this path:`&nbsp;**...\auth\android\app**
+
 ![App Screen](/assets/images/7.png)
 ![App Screen](/assets/images/8-1.png)
 ![App Screen](/assets/images/8-2.png)
