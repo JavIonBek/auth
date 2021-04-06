@@ -1,10 +1,10 @@
 # Auth
 
 ## Authentication and authorization in Firebase using Flutter.
-### App Screens
+### App Screens:
 ![App Screen](/assets/images/screenshot-1.png)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;![App Screen](/assets/images/screenshot-2.png)
 
-### Firebase Setting Steps
+### Firebase Setting Steps:
 `We need to go to this link first:`&nbsp;https://firebase.google.com/
 
 ![App Screen](/assets/images/1.png)
@@ -13,6 +13,7 @@
 ![App Screen](/assets/images/4.png)
 ![App Screen](/assets/images/5.png)
 ![App Screen](/assets/images/6.png)
+`Download google-services.json and put in this path:`&nbsp;**...\auth\android\app**
 ![App Screen](/assets/images/7.png)
 ![App Screen](/assets/images/8-1.png)
 ![App Screen](/assets/images/8-2.png)
