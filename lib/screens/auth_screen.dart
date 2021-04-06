@@ -10,6 +10,16 @@ class AuthScreen extends StatefulWidget {
 }
 
 class _AuthScreenState extends State<AuthScreen> {
+  var _isLoading = false;
+
+  Future<void> _submitAuthForm(
+    String email,
+    String username,
+    String password,
+    bool isLogin,
+    BuildContext ctx,
+  ) async {}
+
   @override
   Widget build(BuildContext context) {
     final deviceSize = MediaQuery.of(context).size;
@@ -70,7 +80,7 @@ class _AuthScreenState extends State<AuthScreen> {
                   ),
                   Flexible(
                     flex: deviceSize.width > 600 ? 2 : 1,
-                    child: AuthFrom(),
+                    child: AuthFrom(_submitAuthForm, _isLoading),
                   ),
                 ],
               ),

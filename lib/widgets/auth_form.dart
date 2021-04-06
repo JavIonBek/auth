@@ -1,19 +1,31 @@
 import 'package:flutter/material.dart';
 
 class AuthFrom extends StatefulWidget {
+  AuthFrom(this.submitFn, this.isLoading);
+
+  final bool isLoading;
+  final void Function(
+    String email,
+    String userName,
+    String password,
+    bool isLogin,
+    BuildContext ctx,
+  ) submitFn;
+
   @override
   _AuthFromState createState() => _AuthFromState();
 }
 
-enum AuthMode { Signup, Login }
-
 class _AuthFromState extends State<AuthFrom>
     with SingleTickerProviderStateMixin {
-  AuthMode _authMode = AuthMode.Login;
-  var _isLoading = false;
   AnimationController _controller;
   Animation<Offset> _slideAnimation;
   Animation<double> _opacityAnimation;
+  final _formKey = GlobalKey<FormState>();
+  var _isLogin = true;
+  var _userEmail = '';
+  var _userName = '';
+  var _userPassword = '';
 
   @override
   void initState() {
@@ -44,16 +56,36 @@ class _AuthFromState extends State<AuthFrom>
   }
 
   void _switchAuthMode() {
-    if (_authMode == AuthMode.Login) {
+    if (_isLogin) {
       setState(() {
-        _authMode = AuthMode.Signup;
+        _isLogin = !_isLogin;
       });
       _controller.forward();
     } else {
       setState(() {
-        _authMode = AuthMode.Login;
+        _isLogin = !_isLogin;
       });
       _controller.reverse();
+    }
+  }
+
+  void _trySubmit() {
+    final isValid = _formKey.currentState.validate();
+    FocusScope.of(context).unfocus();
+
+    if (isValid) {
+      _formKey.currentState.save();
+      widget.submitFn(
+        _userEmail.trim(),
+        _userName.trim(),
+        _userPassword.trim(),
+        _isLogin,
+        context,
+      );
+      print(_userEmail);
+      print(_userName);
+      print(_userPassword);
+      // Use those values to send our auth request ...
     }
   }
 
@@ -68,48 +100,20 @@ class _AuthFromState extends State<AuthFrom>
       child: AnimatedContainer(
         duration: Duration(milliseconds: 300),
         curve: Curves.easeIn,
-        height: _authMode == AuthMode.Signup ? 320 : 260,
+        height: !_isLogin ? 320 : 260,
         // height: _heightAnimation.value.height,
-        constraints:
-            BoxConstraints(minHeight: _authMode == AuthMode.Signup ? 320 : 260),
+        constraints: BoxConstraints(minHeight: !_isLogin ? 320 : 260),
         width: deviceSize.width * 0.75,
         padding: const EdgeInsets.all(16.0),
         child: Form(
-          // key: _formKey,
+          key: _formKey,
           child: SingleChildScrollView(
             child: Column(
               children: [
-                TextFormField(
-                  decoration: const InputDecoration(labelText: 'E-Mail'),
-                  keyboardType: TextInputType.emailAddress,
-                  validator: (value) {
-                    if (value.isEmpty || !value.contains('@')) {
-                      return 'Invalid email!';
-                    }
-                    return null;
-                  },
-                  // onSaved: (value) {
-                  //   _authData['email'] = value;
-                  // },
-                ),
-                TextFormField(
-                  decoration: const InputDecoration(labelText: 'Password'),
-                  obscureText: true,
-                  // controller: _passwordController,
-                  validator: (value) {
-                    if (value.isEmpty || value.length < 5) {
-                      return 'Password is too short!';
-                    }
-                    return null;
-                  },
-                  // onSaved: (value) {
-                  //   _authData['password'] = value;
-                  // },
-                ),
                 AnimatedContainer(
                   constraints: BoxConstraints(
-                    minHeight: _authMode == AuthMode.Signup ? 60 : 0,
-                    maxHeight: _authMode == AuthMode.Signup ? 120 : 0,
+                    minHeight: !_isLogin ? 60 : 0,
+                    maxHeight: !_isLogin ? 120 : 0,
                   ),
                   duration: Duration(milliseconds: 300),
                   curve: Curves.easeIn,
@@ -118,30 +122,62 @@ class _AuthFromState extends State<AuthFrom>
                     child: FadeTransition(
                       opacity: _opacityAnimation,
                       child: TextFormField(
-                        enabled: _authMode == AuthMode.Signup,
-                        decoration: const InputDecoration(
-                            labelText: 'Confirm Password'),
-                        obscureText: true,
-                        // validator: _authMode == AuthMode.Signup
-                        //     ? (value) {
-                        //         if (value != _passwordController.text) {
-                        //           return 'Passwords do not match!';
-                        //         }
-                        //         return null;
-                        //       }
-                        //     : null,
+                        enabled: !_isLogin,
+                        key: const ValueKey('email'),
+                        autocorrect: false,
+                        textCapitalization: TextCapitalization.none,
+                        enableSuggestions: false,
+                        decoration: const InputDecoration(labelText: 'E-Mail'),
+                        keyboardType: TextInputType.emailAddress,
+                        validator: (value) {
+                          if (value.isEmpty || !value.contains('@')) {
+                            return 'Please enter a valid email address.';
+                          }
+                          return null;
+                        },
+                        onSaved: (value) {
+                          _userEmail = value;
+                        },
                       ),
                     ),
                   ),
                 ),
+                TextFormField(
+                  key: ValueKey('username'),
+                  autocorrect: true,
+                  textCapitalization: TextCapitalization.words,
+                  enableSuggestions: false,
+                  decoration: InputDecoration(labelText: 'User name'),
+                  validator: (value) {
+                    if (value.isEmpty || value.length < 4) {
+                      return 'Please enter at least 4 characters.';
+                    }
+                    return null;
+                  },
+                  onSaved: (value) {
+                    _userName = value;
+                  },
+                ),
+                TextFormField(
+                  key: ValueKey('password'),
+                  obscureText: true,
+                  decoration: const InputDecoration(labelText: 'Password'),
+                  validator: (value) {
+                    if (value.isEmpty || value.length < 7) {
+                      return 'Password must be at least 7 characters long.';
+                    }
+                    return null;
+                  },
+                  onSaved: (value) {
+                    _userPassword = value;
+                  },
+                ),
                 const SizedBox(height: 20),
-                if (_isLoading)
-                  CircularProgressIndicator()
-                else
+                if (widget.isLoading) CircularProgressIndicator(),
+                if (!widget.isLoading)
                   ElevatedButton(
-                    child:
-                        Text(_authMode == AuthMode.Login ? 'LOGIN' : 'SIGN UP'),
-                    onPressed: () {}, // _submit
+                    child: Text(_isLogin ? 'LOGIN' : 'SIGN UP'),
+                    onPressed: _trySubmit,
                     style: ButtonStyle(
                       shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                         RoundedRectangleBorder(
@@ -157,19 +193,19 @@ class _AuthFromState extends State<AuthFrom>
                           Theme.of(context).primaryTextTheme.button.color),
                     ),
                   ),
-                TextButton(
-                  child: Text(
-                      '${_authMode == AuthMode.Login ? 'SIGNUP' : 'LOGIN'} INSTEAD'),
-                  onPressed: _switchAuthMode,
-                  style: ButtonStyle(
-                    padding: MaterialStateProperty.all<EdgeInsets>(
-                        const EdgeInsets.symmetric(
-                            horizontal: 30.0, vertical: 4)),
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    foregroundColor: MaterialStateProperty.all<Color>(
-                        Theme.of(context).primaryColor),
+                if (!widget.isLoading)
+                  TextButton(
+                    child: Text('${_isLogin ? 'SIGNUP' : 'LOGIN'} INSTEAD'),
+                    onPressed: _switchAuthMode,
+                    style: ButtonStyle(
+                      padding: MaterialStateProperty.all<EdgeInsets>(
+                          const EdgeInsets.symmetric(
+                              horizontal: 30.0, vertical: 4)),
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      foregroundColor: MaterialStateProperty.all<Color>(
+                          Theme.of(context).primaryColor),
+                    ),
                   ),
-                ),
               ],
             ),
           ),
