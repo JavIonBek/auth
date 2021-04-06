@@ -1,6 +1,6 @@
 # Auth
 
-## Authentication and authorization to Firebase using Flutter
+## Authentication and authorization in Firebase using Flutter.
 ### App Screens
 ![App Screen](/assets/images/screenshot-1.png)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;![App Screen](/assets/images/screenshot-2.png)
 
